@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Masai mart</title>
+	<style>
+		#product-container {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			margin: auto;
+			width: 80%;
+		}
+
+		.navbar {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+		}
+
+		#wishlisticon {
+			width: 15px;
+			height: 15px;
+		}
+	</style>
+</head>
+
+<body>
+	<div>
+		<nav class="navbar">
+			<h4 id="product">products</h4>
+			<h4 id="wishlist">wishlists</h4>
+		</nav>
+		<div>
+			<div>
+				<select id="category" onchange="getdata()">
+					<option value="all">All</option>
+					<option value="kids">kids</option>
+					<option value="homedecor">homedecor</option>
+					<option value="women">women</option>
+				</select>
+			</div>
+			<div>
+				<select id="sort" onchange="getdata()">
+					<option value="asc">Low to High</option>
+					<option value="desc">High to Low</option>
+				</select>
+			</div>
+			<div>
+				<button id="prev1" onclick="getdata(-1)">Prev</button>
+				<button id="next1" onclick="getdata(1)">Next</button>
+			</div>
+		</div>
+		<div id="product-container">
+		</div>
+	</div>
+</body>
+
+</html>
+<script>
+	getdata()
+	var page = 1;
+	let wishlistarr = JSON.parse(localStorage.getItem("wishlist")) || [];
+	async function getdata(a) {
+		let x = document.getElementById("category").value;
+		let y = document.getElementById("sort").value;
+		if (!a) {
+			page = 1
+			document.getElementById("prev1").disabled = true;
+		}
+		else {
+			page = page + a;
+			if (page == 1) {
+				document.getElementById("prev1").disabled = true;
+			}
+			else {
+				document.getElementById("prev1").disabled = false;
+			}
+
+		}
+
+		try {
+			let res = await fetch(`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-products?page=${page}&limit=12&sort=price&order=${y}`)
+			let products = await res.json();
+			console.log(products.data)
+			let data = products.data;
+			if (x != 'all') {
+				let filtered = data.filter(el => el.category == x);
+				showproduct(filtered)
+			}
+			else
+				showproduct(data);
+		}
+		catch (err) {
+			console.log(err)
+		}
+	}
+	function showproduct(data) {
+		document.querySelector("#product-container").innerHTML = "";
+		data.forEach((el) => {
+			let div = document.createElement("div");
+			let brand = document.createElement("h3");
+			brand.innerText = el.brand;
+			let category = document.createElement("p")
+			category.innerText = el.category;
+			let img = document.createElement("img")
+			img.src = el.image;
+			let title = document.createElement("p");
+			title.innerText = el.title
+			let price = document.createElement("p");
+			price.innerText = el.price
+			let wishlist = document.createElement("img")
+			wishlist.src = "https://cdn-icons-png.flaticon.com/128/7299/7299756.png"
+			wishlist.setAttribute("id", "wishlisticon")
+			wishlist.addEventListener("click", () => {
+				wishlistarr.push(el)
+				localStorage.setItem("wishlist", JSON.stringify(wishlistarr))
+			})
+			div.append(img, brand, title, category, price, wishlist)
+			document.querySelector("#product-container").append(div)
+		})
+	}
+</script>

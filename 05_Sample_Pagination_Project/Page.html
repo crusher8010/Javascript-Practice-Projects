@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masai mart</title>
+    <style>
+        #product-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            margin: auto;
+            width: 80%;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #wishlisticon {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <nav class="navbar">
+            <h4 id="product">products</h4>
+            <h4 id="wishlist">wishlists</h4>
+        </nav>
+        <div>
+            <div>
+                <select id="category" onchange="getdata()">
+                    <option value="all">All</option>
+                    <option value="kids">kids</option>
+                    <option value="homedecor">homedecor</option>
+                    <option value="women">women</option>
+                </select>
+            </div>
+            <div>
+                <select id="sort" onchange="getdata()">
+                    <option value="asc">Low to High</option>
+                    <option value="desc">High to Low</option>
+                </select>
+            </div>
+            <!-- <select id="pages_limit" onchange="">
+                <option value="8">8</option>
+                <option value="10">10</option>
+                <option value="10">12</option>
+            </select> -->
+        </div>
+        <div id="product-container">
+        </div>
+        <div id="pages">
+
+        </div>
+    </div>
+</body>
+
+</html>
+<script>
+    let btnpages = document.querySelector("#pages");
+    let limit = 6;
+    var page = 1;
+    let wishlistarr = JSON.parse(localStorage.getItem("wishlist")) || [];
+    let filtered, getall, y;
+
+    getdata();
+
+
+    async function getdata() {
+        let x = document.getElementById("category").value;
+        y = document.getElementById("sort").value;
+        let temp = "";
+        // let btnpages = document.querySelector("#pages");
+
+        try {
+            let res = await fetch(`https://dbioz2ek0e.execute-api.ap-south-1.amazonaws.com/mockapi/get-products?sort=price&order=${y}`)
+            let products = await res.json();
+
+
+
+            if (x != 'all') {
+                filtered = products.data.filter(el => el.category == x);
+                let len = filtered.length;
+                total = Math.ceil(len / limit);
+                makebtn(page = 1, filtered, y)
+                // console.log(start, end)
+
+
+                // console.log(data)
+
+
+
+
+                for (let i = 0; i < total; i++) {
+                    temp += `<button class="btn" onClick="makebtn(${i + 1}, filtered, y)">${i + 1}</button>`;
+                }
+
+            }
+            else {
+                getall = products.data;
+                // console.log(getall)
+                let total = Math.ceil(getall.length / limit);
+                console.log(page)
+                makebtn(page, getall, y)
+
+
+                for (let i = 0; i < total; i++) {
+                    // page = i + 1;
+                    temp += `<button class="btn" onClick="makebtn(${i + 1}, getall, y)">${i + 1}</button>`;
+                }
+
+
+            }
+
+
+            btnpages.innerHTML = temp;
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    function makebtn(temp1, data, y) {
+        // let bt = document.querySelector('.active');
+        // bt.style.backgroundColor = "red";
+        page = temp1;
+        const start = (temp1 - 1) * limit;
+        const end = start + limit;
+
+        temp = (data.slice(start, end))
+        showproduct(temp)
+        // return { start, end }
+    }
+
+    function showproduct(data) {
+        document.querySelector("#product-container").innerHTML = "";
+        data.forEach((el) => {
+            let div = document.createElement("div");
+            let brand = document.createElement("h3");
+            brand.innerText = el.brand;
+            let category = document.createElement("p")
+            category.innerText = el.category;
+            let img = document.createElement("img")
+            img.src = el.image;
+            let title = document.createElement("p");
+            title.innerText = el.title
+            let price = document.createElement("p");
+            price.innerText = el.price
+            let wishlist = document.createElement("img")
+            wishlist.src = "https://cdn-icons-png.flaticon.com/128/7299/7299756.png"
+            wishlist.setAttribute("id", "wishlisticon")
+            wishlist.addEventListener("click", () => {
+                wishlistarr.push(el)
+                localStorage.setItem("wishlist", JSON.stringify(wishlistarr))
+            })
+            div.append(img, brand, title, category, price, wishlist)
+            document.querySelector("#product-container").append(div)
+        })
+    }
+
+</script>
