@@ -41,7 +41,7 @@ body {
 }
 
 .container.show-nav .circle {
-    transition: rotate(-90deg);
+    transform: rotate(-70deg);
 }
 
 .circle button {
@@ -70,26 +70,9 @@ body {
     transform-origin: top left;
 }
 
-.content img {
-    max-width: 100%;
-}
-
-.content {
-    max-width: 1000px;
-}
-
-.content h1 {
-    margin: 0;
-}
-
-.content small {
-    color: #555;
-    font-style: italic;
-}
-
-.content p {
-    color: #333;
-    line-height: 1.5;
+.container.show-nav+nav li {
+    transform: translateX(0);
+    transition-delay: 0.3s;
 }
 
 nav {
@@ -127,11 +110,31 @@ nav ul li+li+li {
     transform: translateX(-200%);
 }
 
+.content img {
+    max-width: 100%;
+}
+
+.content {
+    max-width: 1000px;
+    margin: 50px auto;
+}
+
+.content h1 {
+    margin: 0;
+}
+
+.content small {
+    color: #555;
+    font-style: italic;
+}
+
+.content p {
+    color: #333;
+    line-height: 1.5;
+}
+
+
+
 /* nav ul li+li+li+li {
     margin-left: 45px;
 } */
-
-.container.show-nav+nav li {
-    transform: translateX(0);
-    transition-delay: 0.3s;
-}
