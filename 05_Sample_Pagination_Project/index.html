@@ -86,6 +86,11 @@
 			let products = await res.json();
 			console.log(products.data)
 			let data = products.data;
+
+			if(data.length < 12){
+				document.getElementById("next1").disabled = true;
+			}
+			
 			if (x != 'all') {
 				let filtered = data.filter(el => el.category == x);
 				showproduct(filtered)
